@@ -648,7 +648,7 @@ export class ChangesList extends React.Component<
 
     return (
       <FocusContainer className="stash-focus-container">
-        <div
+        <button
           className={className}
           style={StashListRowStyle}
           onClick={this.onStashEntryClicked}
@@ -657,7 +657,7 @@ export class ChangesList extends React.Component<
           <Octicon className="icon" symbol={StashIcon} />
           <div className="text">Stashed Changes</div>
           <Octicon className="arrow" symbol={OcticonSymbol.chevronRight} />
-        </div>
+        </button>
       </FocusContainer>
     )
   }
