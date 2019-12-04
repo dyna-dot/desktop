@@ -38,6 +38,7 @@ import { Banner } from '../models/banner'
 import { GitRebaseProgress } from '../models/rebase'
 import { RebaseFlowStep } from '../models/rebase-flow-step'
 import { IStashEntry } from '../models/stash-entry'
+import { TutorialStep } from '../models/tutorial-step'
 
 export enum SelectionType {
   Repository,
@@ -155,9 +156,6 @@ export interface IAppState {
   /** The width of the files list in the stash view */
   readonly stashedFilesWidth: number
 
-  /** Whether we should hide the toolbar (and show inverted window controls) */
-  readonly titleBarStyle: 'light' | 'dark'
-
   /**
    * Used to highlight access keys throughout the app when the
    * Alt key is pressed. Only applicable on non-macOS platforms.
@@ -177,8 +175,10 @@ export interface IAppState {
   readonly askForConfirmationOnForcePush: boolean
 
   /** The external editor to use when opening repositories */
-  readonly selectedExternalEditor?: ExternalEditor
+  readonly selectedExternalEditor: ExternalEditor | null
 
+  /** The current setting for whether the user has disable usage reports */
+  readonly optOutOfUsageTracking: boolean
   /**
    * A cached entry representing an external editor found on the user's machine:
    *
@@ -191,6 +191,9 @@ export interface IAppState {
 
   /** What type of visual diff mode we should use to compare images */
   readonly imageDiffType: ImageDiffType
+
+  /** Whether we should hide white space changes in diff */
+  readonly hideWhitespaceInDiff: boolean
 
   /** The user's preferred shell. */
   readonly selectedShell: Shell
@@ -225,6 +228,9 @@ export interface IAppState {
    * See the ApiRepositoriesStore for more details on loading repositories
    */
   readonly apiRepositories: ReadonlyMap<Account, IAccountRepositories>
+
+  /** Which step the user is on in the Onboarding Tutorial */
+  readonly currentOnboardingTutorialStep: TutorialStep
 }
 
 export enum FoldoutType {
@@ -254,10 +260,14 @@ export type AppMenuFoldout = {
   openedWithAccessKey?: boolean
 }
 
+export type BranchFoldout = {
+  type: FoldoutType.Branch
+}
+
 export type Foldout =
   | { type: FoldoutType.Repository }
-  | { type: FoldoutType.Branch }
   | { type: FoldoutType.AddMenu }
+  | BranchFoldout
   | AppMenuFoldout
 
 export enum RepositorySectionTab {
@@ -575,6 +585,9 @@ export interface IChangesState {
    * for more information about the differences between the two.
    */
   readonly selection: ChangesSelection
+
+  /** `true` if the GitHub API reports that the branch is protected */
+  readonly currentBranchProtected: boolean
 }
 
 /**

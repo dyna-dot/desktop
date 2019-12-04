@@ -20,7 +20,7 @@ Please check the [open](https://github.com/desktop/desktop/labels/bug) and [clos
 
 ### 'The username or passphrase you entered is not correct' error after signing into account - [#3263](https://github.com/desktop/desktop/issues/3263)
 
-This seems to be caused by the Keychain being in an invalid state, affecting applications that try to use the keychain to store or retrieve credentials. Seems to be specific to macOS High Sierra (10.13).
+This seems to be caused by the Keychain being in an invalid state, affecting applications that try to use the keychain to store or retrieve credentials. This has been reported from macOS High Sierra 10.13 (17A365) to macOS Mojave 10.14.5 (18F132).
 
 **Workaround:**
 
@@ -170,7 +170,7 @@ fatal: could not read Username for 'https://github.com': terminal prompts disabl
 
 Known causes and workarounds:
 
--  Modifying the `AutoRun` registry entry. To check if this entry has been modified open `Regedit.exe` and navigate to `HKEY_CURRENT_USER\Software\Microsoft\Command Processor\autorun` to see if there is anything set (sometimes applications will also modify this). See [#6789](https://github.com/desktop/desktop/issues/6879#issuecomment-471042891) and [#2623](https://github.com/desktop/desktop/issues/2623#issuecomment-334305916) for examples of this.
+-  Modifying the `AutoRun` registry entry. To check if this entry has been modified open `Regedit.exe` and navigate to `HKEY_CURRENT_USER\Software\Microsoft\Command Processor\autorun` and `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor\autorun` to see if there is anything set (sometimes applications will also modify this). See [#6789](https://github.com/desktop/desktop/issues/6879#issuecomment-471042891) and [#2623](https://github.com/desktop/desktop/issues/2623#issuecomment-334305916) for examples of this.
 
 - Special characters in your Windows username like a `&` or `-` can cause this error to be thrown. See [#7064](https://github.com/desktop/desktop/issues/7064) for an example of this. Try installing GitHub Desktop in a new user account to verify if this is the case.
 

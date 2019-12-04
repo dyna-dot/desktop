@@ -3,7 +3,7 @@ import { TestRepositoriesDatabase } from '../helpers/databases'
 import { IAPIRepository } from '../../src/lib/api'
 
 describe('RepositoriesStore', () => {
-  let repositoriesStore: RepositoriesStore | null = null
+  let repositoriesStore: RepositoriesStore
 
   beforeEach(async () => {
     const db = new TestRepositoriesDatabase()
@@ -15,19 +15,19 @@ describe('RepositoriesStore', () => {
   describe('adding a new repository', () => {
     it('contains the added repository', async () => {
       const repoPath = '/some/cool/path'
-      await repositoriesStore!.addRepository(repoPath)
+      await repositoriesStore.addRepository(repoPath)
 
-      const repositories = await repositoriesStore!.getAll()
+      const repositories = await repositoriesStore.getAll()
       expect(repositories[0].path).toBe(repoPath)
     })
   })
 
   describe('getting all repositories', () => {
     it('returns multiple repositories', async () => {
-      await repositoriesStore!.addRepository('/some/cool/path')
-      await repositoriesStore!.addRepository('/some/other/path')
+      await repositoriesStore.addRepository('/some/cool/path')
+      await repositoriesStore.addRepository('/some/other/path')
 
-      const repositories = await repositoriesStore!.getAll()
+      const repositories = await repositoriesStore.getAll()
       expect(repositories).toHaveLength(2)
     })
   })
@@ -50,6 +50,11 @@ describe('RepositoriesStore', () => {
       default_branch: 'master',
       parent: null,
       pushed_at: '1995-12-17T03:24:00',
+      permissions: {
+        pull: true,
+        push: true,
+        admin: false,
+      },
     }
 
     it('adds a new GitHub repository', async () => {
@@ -65,7 +70,7 @@ describe('RepositoriesStore', () => {
 
       const repositories = await repositoriesStore!.getAll()
       const repo = repositories[0]
-      expect(repo.gitHubRepository!.private).toBe(true)
+      expect(repo.gitHubRepository!.isPrivate).toBe(true)
       expect(repo.gitHubRepository!.fork).toBe(false)
       expect(repo.gitHubRepository!.htmlURL).toBe(
         'https://github.com/my-user/my-repo'

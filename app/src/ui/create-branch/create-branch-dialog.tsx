@@ -7,9 +7,7 @@ import { Branch, StartPoint } from '../../models/branch'
 import { TextBox } from '../lib/text-box'
 import { Row } from '../lib/row'
 import { Ref } from '../lib/ref'
-import { Button } from '../lib/button'
 import { LinkButton } from '../lib/link-button'
-import { ButtonGroup } from '../lib/button-group'
 import { Dialog, DialogError, DialogContent, DialogFooter } from '../dialog'
 import { VerticalSegmentedControl } from '../lib/vertical-segmented-control'
 import {
@@ -24,7 +22,13 @@ import {
   renderBranchNameExistsOnRemoteWarning,
 } from '../lib/branch-name-warnings'
 import { getStartPoint } from '../../lib/create-branch'
-import { UncommittedChangesStrategy } from '../../models/uncommitted-changes-strategy'
+import { OkCancelButtonGroup } from '../dialog/ok-cancel-button-group'
+import { startTimer } from '../lib/timing'
+import {
+  UncommittedChangesStrategy,
+  UncommittedChangesStrategyKind,
+  askToStash,
+} from '../../models/uncommitted-changes-strategy'
 
 interface ICreateBranchProps {
   readonly repository: Repository
@@ -34,6 +38,7 @@ interface ICreateBranchProps {
   readonly defaultBranch: Branch | null
   readonly allBranches: ReadonlyArray<Branch>
   readonly initialName: string
+  readonly currentBranchProtected: boolean
 }
 
 interface ICreateBranchState {
@@ -242,12 +247,10 @@ export class CreateBranch extends React.Component<
         </DialogContent>
 
         <DialogFooter>
-          <ButtonGroup>
-            <Button type="submit" disabled={disabled}>
-              {__DARWIN__ ? 'Create Branch' : 'Create branch'}
-            </Button>
-            <Button onClick={this.props.onDismissed}>Cancel</Button>
-          </ButtonGroup>
+          <OkCancelButtonGroup
+            okButtonText={__DARWIN__ ? 'Create Branch' : 'Create branch'}
+            okButtonDisabled={disabled}
+          />
         </DialogFooter>
       </Dialog>
     )
@@ -278,27 +281,39 @@ export class CreateBranch extends React.Component<
 
     let startPoint: string | null = null
 
+    const { defaultBranch, currentBranchProtected, repository } = this.props
+
     if (this.state.startPoint === StartPoint.DefaultBranch) {
       // This really shouldn't happen, we take all kinds of precautions
       // to make sure the startPoint state is valid given the current props.
-      if (!this.props.defaultBranch) {
+      if (!defaultBranch) {
         this.setState({
           currentError: new Error('Could not determine the default branch'),
         })
         return
       }
 
-      startPoint = this.props.defaultBranch.name
+      startPoint = defaultBranch.name
     }
 
     if (name.length > 0) {
+      // never prompt to stash changes if someone is switching away from a protected branch
+      const strategy: UncommittedChangesStrategy = currentBranchProtected
+        ? {
+            kind: UncommittedChangesStrategyKind.MoveToNewBranch,
+            transientStashEntry: null,
+          }
+        : askToStash
+
       this.setState({ isCreatingBranch: true })
+      const timer = startTimer('create branch', repository)
       await this.props.dispatcher.createBranch(
-        this.props.repository,
+        repository,
         name,
         startPoint,
-        UncommittedChangesStrategy.askForConfirmation
+        strategy
       )
+      timer.done()
     }
   }
 }
