@@ -105,7 +105,7 @@
     "stop-build": "^1.1.0",
     "style-loader": "^0.21.0",
     "to-camel-case": "^1.0.0",
-    "ts-jest": "^23.1.4",
+    "ts-jest": "^23.10.5",
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
